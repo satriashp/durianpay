@@ -35,16 +35,13 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/durianpay:latest
 
-  deploy-to-ec2:
-    runs-on: ubuntu-latest
-    steps:
-      # Step 1: Set up SSH key for EC2 deployment
+      # Step 5: Set up SSH key for EC2 deployment
       - name: Set up SSH key
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}  # Store private key in GitHub secrets
 
-      # Step 2: SSH into EC2 instance and pull the image & run the container
+      # Step 6: SSH into EC2 instance and pull the image & run the container
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
