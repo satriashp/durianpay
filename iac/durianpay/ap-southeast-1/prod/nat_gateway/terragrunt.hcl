@@ -29,6 +29,6 @@ inputs = {
   name_prefix = local.account_name
   environment = local.environment
 
-  vpc_id           = dependency.vpc.outputs.vpc_id
-  public_subnet_id = dependency.subnet.outputs.public_subnet_ids[0]
+  vpc_id            = dependency.vpc.outputs.vpc_id
+  public_subnet_ids = dependency.subnet.outputs.public_subnet_ids
 }

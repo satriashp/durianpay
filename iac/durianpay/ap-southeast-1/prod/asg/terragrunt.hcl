@@ -29,7 +29,7 @@ inputs = {
   name_prefix = local.account_name
   environment = local.environment
 
-  instance_type      = "t3.micro"
+  instance_type      = "t2.micro"
   min_size           = 2
   max_size           = 5
   private_subnet_ids = dependency.subnet.outputs.private_subnet_ids

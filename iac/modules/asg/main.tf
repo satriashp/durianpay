@@ -12,7 +12,7 @@ data "aws_ami" "ubuntu" {
 
   filter {
     name   = "name"
-    values = ["al2023-ami-2023*-x86_64"]
+    values = ["ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20241109"]
   }
 
   filter {

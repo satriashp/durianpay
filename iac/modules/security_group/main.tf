@@ -7,22 +7,32 @@ terraform {
   }
 }
 
-
 resource "aws_security_group" "sg" {
+  name   = "${var.name_prefix}-securirt-group"
   vpc_id = var.vpc_id
 
+  # Allow all outbound traffic
   egress {
     cidr_blocks = ["0.0.0.0/0"]
     from_port   = 0
     to_port     = 0
-    protocol    = "tcp"
+    protocol    = "-1"
   }
 
+   # Allow inbound SSH traffic (port 22)
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
+  }
+
+  # Allow communication between instances in the same security group
+  ingress {
+    self      = true  # This allows communication within the same security group
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"  # Allows all protocols
   }
 
   tags = {
