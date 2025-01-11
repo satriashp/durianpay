@@ -27,6 +27,14 @@ resource "aws_security_group" "sg" {
     protocol    = "tcp"
   }
 
+  # Allow inbound http traffic
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+  }
+
   # Allow communication between instances in the same security group
   ingress {
     self      = true  # This allows communication within the same security group
