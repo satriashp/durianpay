@@ -1,9 +1,9 @@
-This repo contains
+This repository contains:
 
 # IAC
-This folder are contain terraform manifest that provision AWS resource warp with terragrunt to help modular and future proof and easy manage for multiple tenant or similar setup in future.
+This folder includes Terraform manifests that provision AWS resources, wrapped with Terragrunt to ensure modularity, scalability, and easier management for multiple tenants or similar setups in the future.
 
-Resource are deploy on region Singapore `ap-southeast-1`
+The resources are deployed in the Singapore region (`ap-southeast-1`).
 
 ### Prerequisite
 
@@ -24,16 +24,19 @@ Resource are deploy on region Singapore `ap-southeast-1`
 ![cloudwatch](screenshots/cloudwatch.png)
 
 ## Notes
-* Cause the limitation of AWS Free Tier, EC2 instance are provision with `t2.micro` instead of `t3.medium`
-* Feel free to do quick check via awscli. (AWS Acces Key and Secret will sent via email)
+* Due to AWS Free Tier limitations, the EC2 instance is provisioned as `t2.micro` instead of `t3.medium`.
+* You may perform a quick check via awscli. (AWS Access Key and Secret will be sent via email).
 
 
 # App
-This folder are contain demo app with nginx:alpine docker that serve hello.txt file. Also deployed to aws ec2 instance using Github Action `./github/workflows/pipeline.yaml`
+This folder contains a demo app using the `nginx:alpine` Docker image to serve a hello.txt file. It is deployed to an AWS EC2 instance using the GitHub Actions pipeline defined in [`.github/workflows/pipeline.yaml`](.github/workflows/pipeline.yaml).
 
 ### Steps
 1. Checkout code
 2. Setup docker buildx and Login to `dockerhub`
 3. Build and push docker image name: `satriashp/durianpay:latest`
 4. Setup ssh key and access AWS ec2 instance
-5. Pull latest `satriashp/durianpay` docker image then restart current running container.
+5. Pull the latest `satriashp/durianpay` docker image then restart current running container.
+
+## Notes
+* Demo app can be access via this [link](http://52.77.216.148/)
