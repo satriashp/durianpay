@@ -6,53 +6,50 @@ on:
       - "*.*.*"
 
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      # Step 1: Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Login Dockerhub
-        uses: docker/login-action@v1
+       # Step 2: Set up Docker Buildx (needed for multi-platform support)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Step 3: Log in to Docker Hub
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
-
-      - name: Build and push nginx
-        uses: docker/build-push-action@v2
-        with:
-          context: ./app
-          file: ./docker/Dockerfile
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/durianpay:latest
-
-      - name: Deploy to EC2 instance
-        env:
-          PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
-          HOST: ${{ secrets.EC2_HOST }}
-          USERNAME: ${{ secrets.EC2_USERNAME }}
+      # Step 4: Build Docker image
+      - name: Build Docker image
         run: |
-          # Set up SSH private key
-          mkdir -p ~/.ssh
-          echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/durianpay:latest -f app/Dockerfile .
 
-          # Add the EC2 host to known hosts to prevent SSH warnings
-          ssh-keyscan -H $HOST >> ~/.ssh/known_hosts
+      # Step 5: Push Docker image to Docker Hub
+      - name: Push Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/durianpay:latest
 
-          # SSH into EC2 instance and pull the latest Docker image, then run it
-          ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << 'EOF'
-            # Pull the latest image from Docker Hub
+  deploy-to-ec2:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Set up SSH key for EC2 deployment
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_PRIVATE_KEY }}  # Store private key in GitHub secrets
+
+      # Step 2: SSH into EC2 instance and pull the image & run the container
+      - name: Deploy to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} << 'EOF'
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/durianpay:latest
-
-            # Stop and remove the currently running container (if exists)
             docker stop durianpay || true
             docker rm durianpay || true
-
-            # Run the new Docker container
             docker run -d --name durianpay -p 80:80 ${{ secrets.DOCKER_HUB_USERNAME }}/durianpay:latest
           EOF
